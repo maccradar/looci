@@ -1,0 +1,17 @@
+<project name="broker_0mq" basedir="." default="clean-build-comp">
+	<property environment="env"/>
+	<import file="${env.LOOCI}/lnk/lc_osgi/1Scripts/buildFiles/coreMaster.xml"/>
+
+
+  <target name="compile">
+    <mkdir dir="${classes.dir}"/>
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" 
+	   includeAntRuntime="false">
+      <classpath>
+      	<pathelement location="${felix.jar}"/>
+      	<pathelement location="${loociservices.jar}"/>
+      </classpath>
+    </javac>
+  </target>
+
+</project>
