@@ -74,7 +74,8 @@ public class Broker0mqComp extends LoociComponent {
      * Holds the parent codebase
      */
     private Broker0mq _parent;
-
+    
+    
     Broker0mqListener listener;
 
 	/**

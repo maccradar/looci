@@ -10,8 +10,14 @@
       <classpath>
       	<pathelement location="${felix.jar}"/>
       	<pathelement location="${loociservices.jar}"/>
+      	<pathelement location="lib/jeromq-0.3.4.jar"/>
       </classpath>
     </javac>
   </target>
-
+  <target name="jar" depends="compile">
+	  <mkdir dir="${jar.dir}"/>
+	  <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}" manifest="META-INF/MANIFEST.MF">
+	      <zipfileset dir="lib" includes="jeromq-0.3.4.jar" prefix="lib"/>
+	  </jar>
+  </target>
 </project>

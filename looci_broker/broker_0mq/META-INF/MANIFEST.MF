@@ -4,9 +4,8 @@ Bundle-Name: broker_0mq
 Bundle-SymbolicName: broker_0mq
 Bundle-Version: 1.0.0
 Bundle-Activator: broker.Broker0mq
-Require-Bundle: LoociOsgiServices;bundle-version="1.0.0",
- jeromq-osgi;bundle-version="1.0.0"
+Require-Bundle: LoociOsgiServices
 Bundle-ActivationPolicy: lazy
 Import-Package: org.osgi.framework;version="1.3.0"
-Bundle-ClassPath: .
+Bundle-ClassPath: lib/jeromq-0.3.4.jar,.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

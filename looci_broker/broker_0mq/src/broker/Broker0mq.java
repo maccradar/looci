@@ -69,10 +69,13 @@ import looci.osgi.serv.interfaces.ILoociComponent;
  *
  */
 public class Broker0mq extends LoociCodebase {
-	
+	public static final short ROBOT_ALIVE_EVENT = 5000;
 	private static final String componentType = "broker_0mq";
-	private static final short[] interfaces = {};
+	private static final short[] interfaces = {ROBOT_ALIVE_EVENT};
 	private static final short[] receptacles = {};
+	
+
+
 
 	/**
 	 * LooCIComponent(<name>, <provided interfaces>, <required interfaces>);
