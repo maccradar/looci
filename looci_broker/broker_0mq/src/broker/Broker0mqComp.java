@@ -87,9 +87,10 @@ public class Broker0mqComp extends LoociComponent {
 
     @Override
     public void receive(short event_id, byte[] payload) {
-	Event ev = getReceptionEvent();
+	
 	if(listener != null){
-		listener.publishEvent("received event"+ ev.getEventID());
+		String result = Utils.createStringFromByteContent("string", payload);
+		listener.publishEvent(result);
 	}	
     }
     

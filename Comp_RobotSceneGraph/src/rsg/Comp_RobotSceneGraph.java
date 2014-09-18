@@ -50,13 +50,13 @@ Address:
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package broker;
+package rsg;
 
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import looci.osgi.serv.constants.EventTypes;
+
 import looci.osgi.serv.impl.LoociCodebase;
 import looci.osgi.serv.interfaces.ILoociComponent;
 
@@ -68,19 +68,17 @@ import looci.osgi.serv.interfaces.ILoociComponent;
  * @since 2012-01-01
  *
  */
-public class Broker0mq extends LoociCodebase {
-	private static final String componentType = "broker_0mq";
-	private static final short[] interfaces = {EventTypes.ON_OFF_EVENT, EventTypes.STRING_EVENT};
-	private static final short[] receptacles = new short[] {0};
+public class Comp_RobotSceneGraph extends LoociCodebase {
 	
-
 
 
 	/**
 	 * LooCIComponent(<name>, <provided interfaces>, <required interfaces>);
 	 */
-    	public Broker0mq() {
-       		super(componentType, interfaces, receptacles);
+    	public Comp_RobotSceneGraph() {
+       		super("rsg", 
+	      		new short[] { },
+	      		new short[] { });
     	}
 	
 	public void start(BundleContext context) throws Exception {
@@ -90,8 +88,8 @@ public class Broker0mq extends LoociCodebase {
 
 	@Override
 	protected ILoociComponent createLoociComponent() {
-		System.out.println("[broker_0mq] Initialising");
-		return new Broker0mqComp(this);
+		System.out.println("[Comp_RobotSceneGraph] Initialising");
+		return new Comp_RobotSceneGraphComp(this);
 	}
 
 }

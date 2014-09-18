@@ -1,4 +1,4 @@
-<project name="broker_0mq" basedir="." default="jar">
+<project name="Comp_RobotSceneGraph" basedir="." default="clean-build-comp">
 	<property environment="env"/>
 	<import file="${env.LOOCI}/lnk/lc_osgi/1Scripts/buildFiles/coreMaster.xml"/>
 
@@ -10,14 +10,9 @@
       <classpath>
       	<pathelement location="${felix.jar}"/>
       	<pathelement location="${loociservices.jar}"/>
-      	<pathelement location="lib/jeromq-0.3.4.jar"/>
+      	<pathelement location="lib/robotscenegraph.jar"/>	
       </classpath>
     </javac>
   </target>
-  <target name="jar" depends="compile">
-	  <mkdir dir="${jar.dir}"/>
-	  <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}" manifest="META-INF/MANIFEST.MF">
-	      <zipfileset dir="lib" includes="jeromq-0.3.4.jar" prefix="lib"/>
-	  </jar>
-  </target>
+
 </project>
