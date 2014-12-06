@@ -24,6 +24,7 @@ Address:
 package broker;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 import looci.osgi.serv.components.Event;
@@ -140,14 +141,14 @@ public class Broker0mqListener extends Thread{
 
         //  The purge method looks for and kills expired workers. We hold workers
         //  from oldest to most recent, so we stop at the first alive worker:
-        protected static void purge(ArrayList<Worker> workers, Broker0mqComp inst) {
+        protected static void purge(ArrayList<Worker> workers, Hashtable<String,String> names, Broker0mqComp inst) {
             Iterator<Worker> it = workers.iterator();
             while (it.hasNext()) {
                 Worker worker = it.next();
                 if (System.currentTimeMillis() < worker.expiry) {
                     break;
                 }
-                String dead = "robot " + worker.identity + " dead!";
+                String dead = "robot " + names.get(worker.identity) + " dead!";
                 System.out.println(dead);
                 Event ev = new Event(EventTypes.ON_OFF_EVENT, Utils.createByteArrayFromTypeString("string", dead));
                 inst.publish0mqEvent(ev);
@@ -163,12 +164,12 @@ public class Broker0mqListener extends Thread{
         ZContext ctx = new ZContext ();
         Socket frontend = ctx.createSocket(ZMQ.ROUTER);
         Socket backend = ctx.createSocket(ZMQ.ROUTER);
-        frontend.bind( "tcp://*:55555");    //  For clients
+        frontend.bind( "tcp://*:5555");    //  For clients
         backend.bind( "tcp://*:5556");    //  For workers
         System.out.println("Bound clients to 5555 and workers to 5556");
         Socket rsg = ctx.createSocket(ZMQ.SUB);
         rsg.connect("tcp://localhost:11411"); // For robot scene graph
-        System.out.println("Connected to RSG at 11411");
+        System.out.println("Connecting to RSG at 11411");
         String filter = "";
         rsg.subscribe(filter.getBytes(ZMQ.CHARSET));
         
@@ -178,7 +179,9 @@ public class Broker0mqListener extends Thread{
         
         //  List of available workers
         workers = new ArrayList<Worker> ();
-
+        //  Keep track of worker names
+        Hashtable<String, String> names = new Hashtable<String, String>();
+        
         //  Send out heartbeats at regular intervals
         long heartbeat_at = System.currentTimeMillis() + HEARTBEAT_INTERVAL;
 
@@ -210,9 +213,9 @@ public class Broker0mqListener extends Thread{
                     ZFrame frame = msg.getFirst();
                     String data = new String(frame.getData());
                     if(data.equals( PPP_HEARTBEAT))
-                    	System.out.println("Received heartbeat: " + data);
+                    	System.out.println("Received heartbeat from: " + names.get(address.toString()));
                     else {
-                        System.out.println ("E: invalid message from worker");
+                        System.out.println ("E: invalid message from " + names.get(address.toString()));
                         msg.dump(System.out);
                     }
                     msg.destroy();
@@ -221,8 +224,9 @@ public class Broker0mqListener extends Thread{
                 	ZMsg tmp = msg.duplicate();
                    	String name = new String((tmp.getFirst()).getData());
                     String data = new String((tmp.getLast()).getData());
-                    System.out.println("Name: " + name);
-                    System.out.println("Data: " + data);
+                    // Store name
+                    if(!names.containsKey(address.toString()))
+                    	names.put(address.toString(), name);
                     if(data.equals(PPP_READY)) {
                     	String alive = "robot " + name + " with ID " + address.toString() + " alive!";
                     	System.out.println(alive);
@@ -251,7 +255,7 @@ public class Broker0mqListener extends Thread{
             
             if (System.currentTimeMillis() >= heartbeat_at) {
                 for (Worker worker: workers) {
-                    System.out.println("Sending heartbeat to " + worker.identity);
+                    System.out.println("Sending heartbeat to " + names.get(worker.identity));
                     worker.address.send(backend,
                                  ZFrame.REUSE + ZFrame.MORE);
                     ZFrame frame = new ZFrame (PPP_HEARTBEAT);
@@ -259,11 +263,11 @@ public class Broker0mqListener extends Thread{
                 }
                 heartbeat_at = System.currentTimeMillis() + HEARTBEAT_INTERVAL;
             }
-            Worker.purge (workers, inst);
+            Worker.purge (workers, names, inst);
             
             // Poll the rsg
-            byte[] rsg_update = rsg.recv();
-            System.out.println("Received RSG update: " + rsg_update);
+            //byte[] rsg_update = rsg.recv();
+            //System.out.println("Received RSG update: " + rsg_update);
         }
 
         //  When we're done, clean up properly
