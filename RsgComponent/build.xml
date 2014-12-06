@@ -1,0 +1,44 @@
+<project name="RsgComponent" basedir="." default="clean-build">
+
+	<property environment="env" />
+	<property name="loociservices.jar" value="${env.LOOCI}/lnk/lc_android/LooCIAndroid/assets/LoociOsgiServices.jar"/>
+	<property name="felix.jar" value="${env.LOOCI}/lnk/lc_android/LooCIAndroid/libs/felix.jar"/>
+	<property name="android.jar"
+		value="../../looci2-android/android-sdk/platforms/android-19/android.jar" />
+
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build" />
+	<property name="classes.dir" value="${build.dir}/classes" />
+	<property name="jar.dir" value="${build.dir}/jar" />
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${classes.dir}" />
+		<javac srcdir="${src.dir}" destdir="${classes.dir}"
+			includeAntRuntime="false">
+			<classpath>
+				<pathelement location="${felix.jar}" />
+				<pathelement location="${android.jar}" />
+				<pathelement location="${loociservices.jar}" />
+				<pathelement location="lib/robotscenegraph.jar"/>
+      			<pathelement location="lib/jeromq-0.3.4.jar"/>
+      			<pathelement location="lib/android-support-v4.jar"/>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<mkdir dir="${jar.dir}" />
+		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}" manifest="META-INF/MANIFEST.MF">
+		    <zipfileset dir="lib" includes="robotscenegraph.jar" prefix="lib"/>
+	        <zipfileset dir="lib" includes="jeromq-0.3.4.jar" prefix="lib"/>
+	        <zipfileset dir="lib" includes="android-support-v4.jar" prefix="lib"/>
+		</jar>
+	</target>
+
+	<target name="clean-build" depends="clean,jar" />
+
+</project>

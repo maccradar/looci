@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Comp_RobotSceneGraph
+Bundle-SymbolicName: RsgComponent
+Bundle-Version: 1.0.0
+Bundle-Activator: be.kuleuven.mech.rsg.looci.android.zmq.RsgCodebase
+Require-Bundle: LoociOsgiServices;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Import-Package: android.content, android.hardware, android.os, 
+ org.osgi.framework;version="1.3.0"
+Export-Package: android.content, android.hardware, android.os
+Bundle-ClassPath: lib/robotscenegraph.jar, lib/jeromq-0.3.4.jar,.
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
