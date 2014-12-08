@@ -34,7 +34,8 @@ import org.zeromq.ZMQ;
 
 
 public class RsgComponent extends LoociComponent {
-	private PropertyString zmqInputProperty;
+	private PropertyString inputPortProperty;
+	private PropertyString outputPortProperty;
 	
 	private Context app_context; // Reference to use Android API.
 	
@@ -45,7 +46,10 @@ public class RsgComponent extends LoociComponent {
  	// Generate an event based on a position updates.
  	public static final short OUT2_EVENT = (short) 403;
   	
- 	public static final String DEFAULT_ZMQ_INPUT = "tcp://192.168.1.101:11511";
+ 	public static final String DEFAULT_INPUT_PORT = "tcp://192.168.1.101:11511";
+ 	public static final String DEFAULT_OUTPUT_PORT = "tcp://*:11411";
+ 	private static final int STOP_LISTENING = 0;
+ 	private static final int START_LISTENING = 1;
  	
 	Thread listenerThread = null;
 	
@@ -57,19 +61,22 @@ public class RsgComponent extends LoociComponent {
 	Sphere obstacleShape = null; 
 	
 	public RsgComponent() {
-		zmqInputProperty = new PropertyString((short)4, "zmqInput", DEFAULT_ZMQ_INPUT); 
-		addProperty(zmqInputProperty);
+		inputPortProperty = new PropertyString((short)4, "input_port", DEFAULT_INPUT_PORT); 
+		addProperty(inputPortProperty);
 	}
 
 	public void componentAfterProperty(short propertyId){
-		if(propertyId == zmqInputProperty.getPropertyId()){
-			System.out.println("Property updated!");
+		if(propertyId == inputPortProperty.getPropertyId()){
+			System.out.println("Input port updated!");
+		} else	if(propertyId == outputPortProperty.getPropertyId()){
+			System.out.println("Output port updated!");
 		}
 	}
 	
  	@SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void componentStart() {
+ 		System.out.println("[RsgComponent] componentStart begin");
  		// Obtain the reference to access to Android API.
         ServiceReference ref = getCodebase().getBundleContext()
                         .getServiceReference(Context.class.getName());
@@ -86,25 +93,30 @@ public class RsgComponent extends LoociComponent {
                             new IntentFilter("rsg:position"));
             
         }
-        initializeWorldModel();
+        System.out.println("[RsgComponent] componentStart end");
+       //initializeWorldModel();
     }	
 
 	@Override
     public void receive(short eventID, byte[] payload) {
 
-            // Get the information from the event.
-            Event event = getReceptionEvent();
+        // Get the information from the event.
+        Event event = getReceptionEvent();
 
-            // Analyze the eventID.
-            if (event.getEventID() == IN_EVENT) {
-                // Receive an event and show the payload on the display.
-                PayloadBuilder pb = new PayloadBuilder(event.getPayload());
-                int value = pb.getIntegerAt(0);
-                broadcastinfo("value", value);
-
-                // For logging.
-                System.out.println("[RsgComponent] Event IN_EVENT received.");
+        // Analyze the eventID.
+        if (event.getEventID() == IN_EVENT) {
+            // Receive an event and show the payload on the display.
+            PayloadBuilder pb = new PayloadBuilder(event.getPayload());
+            int value = pb.getIntegerAt(0);
+            //broadcastinfo("value", value);
+            if(value == START_LISTENING) {
+            	System.out.println("[RsgComponent] Event IN_EVENT received with start listening command");
+            	initializeWorldModel();
+            } else if(value == STOP_LISTENING) {
+            	System.out.println("[RsgComponent] Event IN_EVENT received with stop listening command");
+            	cleanup();
             }
+        }
     }
 
     // For receiving the broadcast event.
@@ -191,14 +203,14 @@ public class RsgComponent extends LoociComponent {
 	}
 	
 	public void initializeWorldModel() {
-		
+		System.out.println("[RsgComponent] initializeWorldModel begin");
 	
 		Rsg.initializeWorldModel(); // always start with that one.
-
+		System.out.println("[RsgComponent] Rsg.initializeWorldModel done");
 //		WorldModelUpdatesBroadcaster outputPort = new WorldModelUpdatesBroadcaster("tcp://192.168.1.101:11411");
-		WorldModelUpdatesBroadcaster outputPort = new WorldModelUpdatesBroadcaster("tcp://*:11411");
+		WorldModelUpdatesBroadcaster outputPort = new WorldModelUpdatesBroadcaster(outputPortProperty.getVal());
 		Rsg.setOutPort(outputPort);
-		
+		Log.i(logTag, "output port created with value " + outputPortProperty.getVal());
 		virtualFence = new SceneObject();
 		obstacle = new SceneObject(); 
 
@@ -282,7 +294,7 @@ public class RsgComponent extends LoociComponent {
 		
 		displayObstacleCoordinates();
 		
-		Log.i(logTag, "Done.");
+		Log.i(logTag, "RSG init done.");
 	}
 
 
